@@ -1,0 +1,13 @@
+export const ACTIVITY_PROBLEM_SETS = 'activityProblemSets'
+export const ACTIVITY_RESULTS = 'activityResults'
+export const COURSES = 'courses'
+export const RUNNERS = 'runners'
+export const SECTION_INVITES = 'sectionInvites'
+export const SUBMISSION_JOBS = 'submissionJobs'
+export const USERS = 'users'
+export const USERS_PRIVATE = 'usersPrivate'
+
+export const CONFIG = 'configuration'
+export const CONFIG_LANGUAGES = 'languages'
+export const CONFIG_STATISTICS = 'statistics'
+export const CONFIG_MIGRATIONS = 'migrations'

@@ -1,0 +1,49 @@
+<div class="modal-card">
+  <header class="modal-card-head">
+    <p class="modal-card-title">Group {{ section.code }}</p>
+    <b-button label="Cancel" @click="$emit('close')" class="mr-3" />
+    <b-button
+      label="Import"
+      @click="submit"
+      :disabled="parsedUsers.length === 0 || importIsRunning"
+      type="is-primary"
+    />
+  </header>
+  <section class="modal-card-body">
+    <b-field v-if="parsedUsers.length === 0" label="Tab-separated data">
+      <b-input
+        type="textarea"
+        v-model="rawInput"
+        placeholder="Copy and paste student list from REG"
+      ></b-input>
+    </b-field>
+    <b-table v-if="parsedUsers.length > 0" :data="parsedUsers">
+      <b-table-column field="code" label="Student Code" v-slot="props">
+        {{ props.row.code }}
+      </b-table-column>
+      <b-table-column field="nameFirst" label="First Name" v-slot="props">
+        {{ props.row.nameFirst }}
+      </b-table-column>
+      <b-table-column field="nameLast" label="Last Name" v-slot="props">
+        {{ props.row.nameLast }}
+      </b-table-column>
+      <b-table-column field="email" label="Email" v-slot="props">
+        {{ props.row.email }}
+      </b-table-column>
+      <b-table-column v-slot="props">
+        <b-icon
+          v-if="parsedUsersImportSuccess[props.index]"
+          type="is-success"
+          icon="check"
+          size="is-small"
+        ></b-icon>
+        <b-icon
+          v-if="parsedUsersImportSuccess[props.index] === false"
+          type="is-danger"
+          icon="cross"
+          size="is-small"
+        ></b-icon>
+      </b-table-column>
+    </b-table>
+  </section>
+</div>

@@ -1,0 +1,1 @@
+{"version":3,"file":"activity-problem.d.ts","sourceRoot":"","sources":["../../../src/test-data/data/activity-problem.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,cAAc,EAAE,GAAG,EAAE,OAAO,EAAE,MAAM,6BAA6B,CAAA;AA2E1E,eAAO,MAAM,qBAAqB,EAAE,KAAK,CAAC;IAAE,QAAQ,EAAE,GAAG,CAAC,cAAc,CAAC,CAAC;IAAC,QAAQ,EAAE,KAAK,CAAC,GAAG,CAAC,OAAO,CAAC,CAAC,CAAA;CAAE,CAWzG,CAAA"}

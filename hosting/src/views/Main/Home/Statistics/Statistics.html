@@ -1,0 +1,40 @@
+<section class="section container">
+  <div class="level is-mobile mt-6">
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Compile<br />Errors</p>
+        <p v-if="statistics" class="title">
+          {{ statistics.submissionCompileFailures | shortscale }}
+        </p>
+        <p v-else class="title has-text-grey-lighter">...</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Test<br />Failures</p>
+        <p v-if="statistics" class="title">
+          {{ statistics.submissionTestFailures | shortscale }}
+        </p>
+        <p v-else class="title has-text-grey-lighter">...</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Successful<br />Submissions</p>
+        <p v-if="statistics" class="title">
+          {{ statistics.submissionSuccesses | shortscale }}
+        </p>
+        <p v-else class="title has-text-grey-lighter">...</p>
+      </div>
+    </div>
+    <div class="level-item has-text-centered">
+      <div>
+        <p class="heading">Awesome<br />Members</p>
+        <p v-if="statistics" class="title">
+          {{ statistics.members | shortscale }}
+        </p>
+        <p v-else class="title has-text-grey-lighter">...</p>
+      </div>
+    </div>
+  </div>
+</section>

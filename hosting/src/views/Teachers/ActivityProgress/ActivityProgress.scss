@@ -1,0 +1,25 @@
+@import '@/scss/variables';
+
+.score-none {
+  color: #999;
+}
+
+.score-0 {
+  color: #f80;
+}
+
+.score-25 {
+  color: #eb0;
+}
+
+.score-50 {
+  color: #dc0;
+}
+
+.score-75 {
+  color: #9b3;
+}
+
+.score-100 {
+  color: $success;
+}

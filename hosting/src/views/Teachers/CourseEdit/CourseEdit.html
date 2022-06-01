@@ -1,0 +1,155 @@
+<section class="section">
+  <div class="container">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li class="is-active">
+                <a href="#" aria-current="page">
+                  {{ isNew ? 'New Course' : slug }}
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="buttons has-addons">
+            <router-link
+              v-if="courseId === undefined"
+              class="button is-small"
+              :to="{ name: 'Home' }"
+              ><b-icon icon="close" size="is-small"></b-icon>
+              <span>Discard</span></router-link
+            >
+            <router-link
+              v-if="courseId !== undefined && course.roleEdit.includes($store.state.currentUser.id)"
+              class="button is-small"
+              :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+              ><b-icon icon="eye-outline" size="is-small"></b-icon>
+              <span>View</span></router-link
+            >
+            <router-link
+              v-if="courseId !== undefined && course.roleEdit.includes($store.state.currentUser.id)"
+              class="button is-small"
+              :to="{ name: 'CourseEdit', params: { courseSlug: $route.params.courseSlug } }"
+              ><b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span></router-link
+            >
+            <router-link
+              v-if="courseId !== undefined && course.roleEdit.includes($store.state.currentUser.id)"
+              class="button is-small"
+              :to="{ name: 'ActivityEdit', params: { courseSlug: $route.params.courseSlug, activitySlug: 'new-activity' } }"
+              ><b-icon icon="plus" size="is-small"></b-icon>
+              <span>Add Activity</span></router-link
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="block columns">
+      <div class="column is-one-fifth">
+        <b-input
+          v-model="course.code"
+          placeholder="Code"
+          size="is-large"
+          @keyup.native.enter="courseChanged"
+          @blur="courseChanged"
+        ></b-input>
+      </div>
+      <div class="column">
+        <b-input
+          v-model="course.name"
+          placeholder="Course name"
+          size="is-large"
+          @keyup.native.enter="courseChanged"
+          @blur="courseChanged"
+        ></b-input>
+      </div>
+    </div>
+    <div class="block columns">
+      <div class="column is-one-quarter">
+        <b-field label="Year">
+          <b-select v-model="course.year" @input="courseChanged" expanded>
+            <option v-for="year in years" :value="year" :key="year">
+              {{ year }}
+            </option>
+          </b-select>
+        </b-field>
+      </div>
+      <div class="column is-one-quarter">
+        <b-field label="Semester">
+          <b-select v-model="course.semester" @input="courseChanged" expanded>
+            <option
+              v-for="semester in [1, 2, 3]"
+              :value="semester"
+              :key="semester"
+            >
+              {{ semester }}
+            </option>
+          </b-select>
+        </b-field>
+      </div>
+      <div class="column is-one-quarter">
+        <b-field label="Theme">
+          <b-select v-model="course.theme" @input="courseChanged" expanded>
+            <option v-for="theme in themes" :value="theme" :key="theme">
+              {{ theme | capitalize }}
+            </option>
+          </b-select>
+        </b-field>
+      </div>
+      <div class="column is-one-quarter">
+        <b-field label="Languages">
+          <b-taginput
+            v-model="allowedLanguages"
+            autocomplete
+            :data="languages"
+            field="label"
+            @input="courseChanged"
+            open-on-focus
+            ellipsis
+            aria-close-label="Remove"
+            expanded
+            :placeholder="allowedLanguages.length === 0 ? 'All languages' : ''"
+          >
+          </b-taginput>
+        </b-field>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="column is-two-thirds">
+        <!-- TODO: Activities -->
+      </div>
+      <div class="column is-one-third">
+        <b-field label="Section/Group numbers">
+          <b-taginput
+            v-model="sectionCodes"
+            @input="courseChanged"
+            ellipsis
+            placeholder="Ex: 1, 2, 3"
+            aria-close-label="Remove section number"
+          >
+          </b-taginput>
+        </b-field>
+      </div>
+    </div>
+
+    <div v-if="hasActivities" class="has-text-right mt-6">
+      <router-link
+        tag="button"
+        class="button"
+        :disabled="courseId === undefined"
+        :to="{ name: 'ActivityEdit', params: { courseSlug: this.$route.params.courseSlug, activitySlug: 'new-activity' } }"
+        ><b-icon icon="arrow-right"></b-icon>
+        <span>Next: Create new activity</span>
+      </router-link>
+    </div>
+
+    <SectionList />
+  </div>
+</section>

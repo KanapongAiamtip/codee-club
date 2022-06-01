@@ -1,0 +1,151 @@
+<section class="section">
+  <NotFound v-if="!activityId" item="activity" class="container" />
+  <div v-else class="container" :class="themeCssClass">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+                  >{{ $route.params.courseSlug }}</router-link
+                >
+              </li>
+              <li class="is-active">
+                <a href="#" aria-current="page">{{ activity.name }}</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div
+        class="level-right"
+        v-if="course.roleEdit.includes($store.state.currentUser.id)"
+      >
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="mr-2">
+            <span class="has-text-weight-bold">{{ activity.status }}</span>
+          </div>
+          <div class="buttons has-addons">
+            <router-link
+              class="button is-small"
+              :to="{ name: 'Activity', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="eye-outline" size="is-small"></b-icon>
+              <span>View</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'ActivityEdit', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'TeachProgress', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="chart-areaspline" size="is-small"></b-icon>
+              <span>Progress</span></router-link
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="level is-themed-course-header">
+      <div class="level-left">
+        <div class="level-item">
+          <h1 class="title">{{ activity.name }}</h1>
+        </div>
+      </div>
+    </nav>
+
+    <div v-if="loading.results" class="block">
+      <b-icon icon="loading" custom-class="spin"></b-icon>
+    </div>
+    <div v-else class="block">
+      <p class="title has-text-centered">
+        <a @click.prevent="decSection"> &lt; </a>
+        <span>{{ section.code }}</span>
+        <a @click.prevent="incSection"> &gt; </a>
+      </p>
+      <p class="subtitle has-text-centered">
+        {{ studentsForSection.length }} Students
+      </p>
+
+      <b-table
+        v-if="problemSet && studentsAndResults"
+        :data="studentsAndResults"
+        default-sort="lastImp"
+        default-sort-direction="asc"
+      >
+        <template>
+          <b-table-column
+            field="id"
+            label="Code"
+            width="1"
+            sortable
+            v-slot="props"
+          >
+            {{ props.row.code }}
+          </b-table-column>
+          <b-table-column field="name" label="Name" sortable v-slot="props">
+            <span style="white-space: nowrap">{{ props.row.name }}</span>
+          </b-table-column>
+          <b-table-column
+            field="percent"
+            label="Score"
+            width="1"
+            centered
+            sortable
+            v-slot="props"
+          >
+            <span>{{ props.row.totalPercent.toFixed(0) }}</span>
+          </b-table-column>
+          <b-table-column
+            field="lastSub"
+            label="Last Submit"
+            width="1"
+            centered
+            sortable
+            v-slot="props"
+          >
+            <span> {{ props.row.lastSub | fromNowShort }} </span>
+          </b-table-column>
+          <b-table-column
+            field="lastImp"
+            label="Last Improve"
+            width="1"
+            centered
+            sortable
+            v-slot="props"
+          >
+            <span> {{ props.row.lastImp | fromNowShort }} </span>
+          </b-table-column>
+          <b-table-column
+            :field="n.toString()"
+            :label="n.toString()"
+            width="1"
+            centered
+            v-for="n in problemsLength"
+            :key="n"
+            v-slot="props"
+          >
+            <span v-if="props.row.percentProbs[n]">
+              <span v-if="props.row.percentProbs[n]===100">
+                <b-icon icon="check" type="is-success"></b-icon>
+              </span>
+              <span
+                v-else
+                :class="{ [`score-${Math.floor(props.row.percentProbs[n] / 25) * 25}`]: true }"
+              >
+                {{ props.row.percentProbs[n].toFixed(0) }}%
+              </span>
+            </span>
+            <span v-else class="score-none"> - </span>
+          </b-table-column>
+        </template>
+      </b-table>
+    </div>
+  </div>
+</section>

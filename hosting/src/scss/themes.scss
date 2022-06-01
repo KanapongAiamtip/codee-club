@@ -1,0 +1,60 @@
+// https://coolors.co/1166bb-d62839-e3b23c-2ec0f9-a833b9-c3dfe0-519e8a
+
+$theme-default: $primary;
+$theme-java: #2ec0f9;
+$theme-python: #e3b23c;
+$theme-kotlin: #a833b9;
+$theme-swift: #d62839;
+$theme-green: #519e8a;
+$theme-pink: #ff92dd;
+$theme-orange: #ffaf04;
+$theme-go: #04ff6d;
+
+$theme-default-invert: findColorInvert($theme-default);
+$theme-java-invert: findColorInvert($theme-java);
+$theme-python-invert: findColorInvert($theme-python);
+$theme-kotlin-invert: findColorInvert($theme-kotlin);
+$theme-swift-invert: findColorInvert($theme-swift);
+$theme-green-invert: findColorInvert($theme-green);
+$theme-pink-invert: findColorInvert($theme-pink);
+$theme-orange-invert: findColorInvert($theme-orange);
+$theme-go-invert: findColorInvert($theme-go);
+
+$theme-colors: (
+  'theme-default': (
+    $theme-default,
+    $theme-default-invert
+  ),
+  'theme-java': (
+    $theme-java,
+    $theme-java-invert
+  ),
+  'theme-python': (
+    $theme-python,
+    $theme-python-invert
+  ),
+  'theme-kotlin': (
+    $theme-kotlin,
+    $theme-kotlin-invert
+  ),
+  'theme-swift': (
+    $theme-swift,
+    $theme-swift-invert
+  ),
+  'theme-green': (
+    $theme-green,
+    $theme-green-invert
+  ),
+  'theme-pink': (
+    $theme-pink,
+    $theme-pink-invert
+  ),
+  'theme-orange': (
+    $theme-orange,
+    $theme-orange-invert
+  ),
+  'theme-go': (
+    $theme-go,
+    $theme-go-invert
+  )
+);

@@ -1,0 +1,16 @@
+@import '@/scss/variables';
+
+.activity {
+  .icon {
+    margin-right: 0.75rem;
+  }
+}
+
+.deadline {
+  margin-left: 0.75rem;
+  color: #999;
+
+  &.urgent {
+    color: $danger;
+  }
+}

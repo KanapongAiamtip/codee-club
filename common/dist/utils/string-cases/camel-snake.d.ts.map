@@ -1,0 +1,1 @@
+{"version":3,"file":"camel-snake.d.ts","sourceRoot":"","sources":["../../../src/utils/string-cases/camel-snake.ts"],"names":[],"mappings":"AAWA,eAAO,MAAM,YAAY,SAAmB,GAAG,iCAAmB,GASjE,CAAA;AAOD,eAAO,MAAM,YAAY,SAAmB,GAAG,iCAAmB,GASjE,CAAA;AAGD,wBAAgB,QAAQ,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CAK5C;AAGD,wBAAgB,QAAQ,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,GAAG,MAAM,GAAG,MAAM,CAS9D"}

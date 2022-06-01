@@ -1,0 +1,21 @@
+.crop {
+  --side-length: 24px;
+
+  width: var(--side-length);
+  height: var(--side-length);
+
+  &.h28 { --side-length: 28px; }
+  &.h35 { --side-length: 35px; }
+  &.h70 { --side-length: 70px; }
+  &.h200 { --side-length: 200px; }
+  &.h300 { --side-length: 300px; }
+
+  img {
+    width: var(--side-length);
+    max-width: var(--side-length);
+    height: var(--side-length);
+    max-height: var(--side-length);
+    object-fit: cover;
+    object-position: center;
+  }
+}

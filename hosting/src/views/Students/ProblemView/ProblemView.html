@@ -1,0 +1,367 @@
+<section class="section">
+  <div class="container" :class="themeCssClass">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+                  >{{ $route.params.courseSlug }}</router-link
+                >
+              </li>
+              <li>
+                <router-link
+                  :to="{ name: 'Activity', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+                  >{{ activity.name }}</router-link
+                >
+              </li>
+              <li class="is-active">
+                <a href="#" aria-current="page" v-if="problem"
+                  >{{ problem.name }}</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div class="level-right" v-if="course.roleEdit.includes(user.id)">
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="buttons has-addons">
+            <b-button @click="isEditModalActive = true" size="is-small">
+              <b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span>
+            </b-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title & Prev/Next -->
+    <div class="level is-themed-course-header">
+      <div class="level-left">
+        <h1 class="title">
+          <span v-if="problem">{{ problem.name }}</span>
+          <span v-else>Loading...</span>
+        </h1>
+      </div>
+      <div class="level-right">
+        <nav class="prev-next is-large">
+          <router-link
+            :to="{ name: 'Problem', params: { courseSlug: $route.params.courseSlug, activitySlug:
+          $route.params.activitySlug, problemSeq: parseInt(this.$route.params.problemSeq)-1 } }"
+            :is="havePrev ? 'router-link' : 'span'"
+            :class="{ disabled: !havePrev }"
+          >
+            ←
+          </router-link>
+          <router-link
+            :to="{ name: 'Problem', params: { courseSlug: $route.params.courseSlug, activitySlug:
+          $route.params.activitySlug, problemSeq: parseInt(this.$route.params.problemSeq)+1 } }"
+            :is="haveNext ? 'router-link' : 'span'"
+            :class="{ disabled: !haveNext }"
+          >
+            →
+          </router-link>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Desc & Test -->
+    <article class="block">
+      <div class="columns">
+        <div class="column is-full-mobile" style="padding-right: 2rem">
+          <p
+            v-if="problem"
+            v-html="problem.description"
+            style="font-family: 'Roboto', sans-serif"
+            class="block is-size-5"
+          ></p>
+          <p v-else>
+            <b-skeleton width="20%"></b-skeleton>
+            <b-skeleton width="40%"></b-skeleton>
+            <b-skeleton width="60%"></b-skeleton>
+            <b-skeleton width="80%"></b-skeleton>
+          </p>
+
+          <p class="block title is-3">Example Test Cases</p>
+          <div
+            v-for="test in tests"
+            class="columns is-multiline testcases"
+            style="padding: 0; margin-bottom: 2.5rem"
+          >
+            <div class="column is-full-touch">
+              <p class="title is-size-5">Input</p>
+              <pre>{{ test.input }}</pre>
+            </div>
+            <div class="column is-full-touch">
+              <p class="title is-size-5">Output</p>
+              <pre>{{ test.expected }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit & Results -->
+        <!-- Bug relating to is-narrow: https://github.com/jgthms/bulma/issues/2937 -->
+        <div class="submit column is-narrow-tablet is-full-mobile">
+          <!-- Submit -->
+          <div class="box has-background-light" style="position: relative">
+            <b-loading :is-full-page="false" v-model="uploading">
+              <div class="columns is-multiline is-centered">
+                <b-icon
+                  size="is-large"
+                  icon="loading"
+                  custom-class="spin"
+                ></b-icon>
+                <p
+                  class="column is-full title is-size-3"
+                  style="text-align: center; color: rgb(0, 0, 0)"
+                >
+                  Uploading...
+                </p>
+              </div>
+            </b-loading>
+            <b-field>
+              <b-upload v-model="dropFiles" multiple drag-drop>
+                <div
+                  class="content has-text-centered"
+                  style="padding: 1rem 0.5rem"
+                >
+                  <p>
+                    <b-icon icon="folder" size="is-large"></b-icon>
+                  </p>
+                  <p>Drop your files here or click to browse</p>
+                </div>
+              </b-upload>
+            </b-field>
+
+            <div class="tags mb-2">
+              <span
+                v-for="(file, index) in dropFiles"
+                :key="index"
+                class="tag is-primary"
+              >
+                {{ file.name.slice(0,20) }}
+                <button
+                  class="delete is-small"
+                  type="button"
+                  @click="deleteDropFile(index)"
+                ></button>
+              </span>
+            </div>
+
+            <div v-if="dropFiles.length > 0" class="has-text-centered mb-4">
+              <b-select v-model="selectedLanguageId" expanded>
+                <option
+                  v-for="language in languages"
+                  :key="`pv-langs-${language.id}`"
+                  :value="language.id"
+                >
+                  {{ language.label }}
+                </option>
+              </b-select>
+            </div>
+
+            <div class="buttons">
+              <b-button
+                icon-left="upload"
+                icon-right="upload"
+                :disabled="dropFiles.length === 0"
+                :class="[dropFiles.length === 0 ? 'is-medium' : 'is-medium is-accent']"
+                expanded
+                @click="confirm"
+                >Check My Code</b-button
+              >
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="box has-background-light">
+            <p class="title is-3 mb-2">Results</p>
+            <div v-if="loadingResults" style="color: rgb(134, 124, 124)">
+              <div class="level">
+                <div class="level-left is-size-4" style="margin-left: 4px">
+                  <b-icon
+                    class="level-item"
+                    icon="loading"
+                    custom-class="spin"
+                  ></b-icon>
+                  <span class="level-item" style="margin-left: 4px"
+                    >Loading</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              v-else-if="!problemResults.length"
+              style="color: rgb(134, 124, 124)"
+            >
+              Waiting for your first submission!
+            </div>
+            <table v-else class="results-list">
+              <!-- Results List -->
+              <tr
+                v-for="(problemResult, idx) in problemResults"
+                :key="problemResult.id"
+                @click="modalIndex = idx"
+              >
+                <td>
+                  #{{ problemResults.length - idx }}:
+                  <span class="result-link"
+                    >{{ problemResult.date | logShort }}</span
+                  >
+                </td>
+                <td>
+                  <span v-if="problemResult.status === 'EVALUATING'">
+                    <b-icon icon="loading" custom-class="spin"></b-icon>
+                  </span>
+                  <span
+                    v-else-if="problemResult.status === 'PASS' || problemResult.status === 'FAIL'"
+                    :class=" `result-percent-${ Math.floor(problemResult.percent / 25) * 25 }` "
+                    >{{ problemResult.percent }}%</span
+                  >
+                  <span v-else>
+                    <b-tooltip
+                      :label="getResultStatusDescription(problemResult.status)"
+                    >
+                      <b-icon icon="alert-outline" type="is-danger"></b-icon>
+                    </b-tooltip>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Results Modal -->
+          <b-modal
+            ref="problemResultModal"
+            v-if="modalIndex !== null"
+            @close="modalIndex = null; return false"
+            @keyup.native.left="decrementModal"
+            @keyup.native.right="incrementModal"
+            class="modal-result"
+            scroll="keep"
+            active
+            has-modal-card
+          >
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">
+                  #{{ problemResults.length - modalIndex }}: {{
+                  getResultStatusDescription(modalProblemResult.status) }}<br />
+                  <span class="subtitle is-6 pt4">
+                    <a
+                      :href="getDownloadableUrl(modalProblemResult.fileRefs[0])"
+                      download
+                    >
+                      <b-icon icon="file" size="is-small"></b-icon> {{
+                      getFileName(modalProblemResult.fileRefs[0]) }}
+                    </a>
+                  </span>
+                </p>
+                <p class="subtitle has-text-right">
+                  <b-icon
+                    @click.native="decrementModal"
+                    icon="arrow-left-thick"
+                  ></b-icon>
+                  <b-icon
+                    @click.native="incrementModal"
+                    icon="arrow-right-thick"
+                  ></b-icon>
+                </p>
+              </header>
+              <section class="modal-card-body">
+                <div class="content">
+                  <div
+                    v-if="modalProblemResult.status === 'EVALUATING'"
+                    class="result-evaluating"
+                  >
+                    <p>BLIP BLOP BLOOP</p>
+                    <p>EVALUATING</p>
+                    <p>*WHITE NOISE*</p>
+                    <p>PLEASE WAIT</p>
+                    <p>PLEASE WAIT</p>
+                  </div>
+                  <div v-if="modalProblemResult.status === 'PASS'">
+                    <h1 class="title">{{ getRandomCongratsMessage() }}</h1>
+                    <p class="result-pass-emoji">
+                      {{ getRandomCongratsEmoji() }}
+                    </p>
+                  </div>
+                  <div
+                    v-else-if="modalProblemResult.status === 'ERROR' | modalProblemResult.status === 'INVALID' | modalProblemResult.status === 'TIMEOUT'"
+                  >
+                    <p>Error:</p>
+                    <pre>{{ dedent(modalProblemResult.errorOutput) }}</pre>
+                  </div>
+                  <div v-else>
+                    <div
+                      class="content"
+                      v-for="(testResult, trIdx) in modalTestResults"
+                      :key="testResult.testId"
+                    >
+                      <p class="mb-2">
+                        Test {{ trIdx + 1 }}
+                        <b-icon
+                          :icon="testResult.status === 'FAIL' ? 'close' : 'check'"
+                          :type="testResult.status === 'FAIL' ? 'is-danger' : 'is-success'"
+                          size="is-small"
+                        ></b-icon>
+                      </p>
+                      <div>
+                        <div v-if="testResult.error.length">
+                          <pre>{{ dedent(testResult.error) }}</pre>
+                        </div>
+                        <div
+                          v-else-if="!testsKeyed[testResult.testId] || testsKeyed[testResult.testId].visibility !== 'VISIBLE'"
+                        >
+                          <pre class="test-hidden">HIDDEN TEST CASE</pre>
+                        </div>
+                        <div v-else class="columns result-compare">
+                          <div class="column">
+                            <pre
+                              class="expected"
+                            ><span v-for="(line, lIdx) in testsKeyed[testResult.testId].expected.trim().split('\n')" :key="`${trIdx}-${lIdx}`" class="line">{{ line }}</span></pre>
+                          </div>
+                          <div class="column">
+                            <pre
+                              class="actual"
+                            ><span v-for="(line, lIdx) in testResult.actual.trim().split('\n')" :key="`${trIdx}-${lIdx}`" class="line">{{ line }}</span></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <footer class="modal-card-foot">
+                {{ modalProblemResult.date | logLong }} ({{
+                modalProblemResult.date | fromNow }})
+              </footer>
+            </div>
+          </b-modal>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <b-modal
+    v-model="isEditModalActive"
+    trap-focus
+    :destroy-on-hide="false"
+    aria-role="dialog"
+    aria-label="Edit Modal"
+    aria-modal
+    width="1400"
+  >
+    <template #default="props">
+      <ProblemEdit
+        :activityId="activity.id"
+        :problem="problem"
+        @close="props.close"
+      ></ProblemEdit>
+    </template>
+  </b-modal>
+</section>

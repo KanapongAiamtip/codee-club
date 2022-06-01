@@ -1,0 +1,32 @@
+.leaderboard .tab-content {
+  margin: 0;
+  padding: 0;
+}
+
+.leaderboard .tab-item {
+  padding-top: 1.25rem;
+}
+
+.leaderboard .table thead {
+  display: none;
+}
+
+.leaderboard .table,
+.leaderboard th,
+.leaderboard td {
+  border: 0;
+}
+
+.leaderboard .table figure {
+  vertical-align: bottom;
+}
+
+.leaderboard .is-you {
+  background: $primary-light;
+  color: $primary;
+  font-weight: bold;
+}
+
+.leaderboard .is-you.outside {
+  border-top: 2px double $primary;
+}

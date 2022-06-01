@@ -1,0 +1,32 @@
+<section class="section">
+  <div class="container">
+    <h1 class="title">Login</h1>
+
+    <NuConnectButton />
+
+    <hr />
+
+    <b-field label="Email">
+      <b-input
+        v-model="credentials.email"
+        @keyup.native.enter="attemptUsernameLogin"
+        ref="email"
+        maxlength="30"
+      ></b-input>
+    </b-field>
+    <b-field label="Password">
+      <b-input
+        v-model="credentials.password"
+        @keyup.native.enter="attemptUsernameLogin"
+        type="password"
+        password-reveal
+      ></b-input>
+    </b-field>
+    <b-message v-if="fail" type="is-danger" has-icon
+      >Incorrect username/password or user does not exist.</b-message
+    >
+    <b-field>
+      <b-button @click="attemptUsernameLogin">Submit</b-button>
+    </b-field>
+  </div>
+</section>

@@ -1,0 +1,34 @@
+@import '@/scss/variables';
+
+.inline-edit {
+  padding: 4px;
+  color: $primary;
+  cursor: pointer;
+}
+
+.inline-edit:hover {
+  color: $dark;
+}
+
+.missing {
+  color: $disabled;
+  font-style: italic;
+}
+
+.file-cta {
+  background-color: #dbdbdbb0;
+}
+
+.qr-icon {
+  position: absolute;
+  z-index: -100;
+  top: 11px;
+  right: 9px;
+  transform: rotate(7deg);
+}
+
+.image:hover .qr-icon {
+  top: 5px;
+  right: -3px;
+  transform: rotate(11deg);
+}

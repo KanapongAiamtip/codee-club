@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    // Project
+    "declaration": true,
+    "declarationMap": true,
+    "lib": ["ESNext", "DOM"],
+    "module": "CommonJS",
+    "removeComments": true,
+    "sourceMap": true,
+    "target": "ES2015",
+
+    // Module resolution
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+
+    // Linting
+    "alwaysStrict": true,
+    "strict": true /* includes: strictNullChecks, strictBindCallApply, strictFunctionTypes, strictPropertyInitialization, noImplicitAny, noImplicitThis */,
+    "noFallthroughCasesInSwitch": true,
+    // "noImplicitOverride": true, // requires TypeScript 4.3 (which breaks ts-essentials)
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false, // seems undesirable
+    "noUncheckedIndexedAccess": false, // troublesome for array indexing
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Experimental
+    "experimentalDecorators": true,
+
+    // Advanced
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    "forceConsistentCasingInFileNames": true,
+    "noErrorTruncation": true,
+    "pretty": true,
+    "resolveJsonModule": true,
+    "useDefineForClassFields": true
+  },
+  "exclude": ["node_modules", "dist", "lib", ".*/**"]
+}

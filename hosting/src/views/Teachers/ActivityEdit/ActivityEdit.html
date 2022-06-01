@@ -1,0 +1,142 @@
+<section class="section">
+  <div class="container">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+                  >{{ $route.params.courseSlug }}</router-link
+                >
+              </li>
+              <li class="is-active">
+                <a href="#" aria-current="page">
+                  {{ isNew ? 'New Activity' : activity.name }}
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div
+        class="level-right"
+        v-if="course.roleEdit.includes($store.state.currentUser.id)"
+      >
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="mr-2">
+            <span class="has-text-weight-bold">{{ activity.status }}</span>
+          </div>
+          <div class="buttons has-addons">
+            <router-link
+              class="button is-small"
+              :to="{ name: 'Activity', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="eye-outline" size="is-small"></b-icon>
+              <span>View</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'ActivityEdit', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'TeachProgress', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="chart-areaspline" size="is-small"></b-icon>
+              <span>Progress</span></router-link
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="block columns">
+      <div class="column is-four-fifths">
+        <b-input
+          v-model="activity.name"
+          placeholder="Activity name"
+          size="is-large"
+          @keyup.native.enter="activityChanged() ; focusProblem()"
+          @blur="activityChanged"
+        ></b-input>
+      </div>
+      <div class="column">
+        <b-select
+          v-model="activity.status"
+          @input="activityChanged() ; focusProblem()"
+          size="is-large"
+        >
+          <option
+            v-for="status in ['DRAFT', 'PUBLISHED', 'LOCKED']"
+            :value="status"
+            :key="status"
+          >
+            {{ status }}
+          </option>
+        </b-select>
+      </div>
+    </div>
+
+    <b-table :data="problems" draggable>
+      <b-table-column field="seq" label="Seq" width="40" v-slot="props">
+        {{ props.row.seq }}
+      </b-table-column>
+
+      <b-table-column field="name" label="Name" v-slot="props">
+        {{ props.row.name }}
+      </b-table-column>
+
+      <b-table-column v-slot="props">
+        <router-link
+          class="button is-small"
+          :to="{ name: 'Problem', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug, problemSeq: props.row.seq } }"
+          >View</router-link
+        >
+        <!-- <b-button @click="editProblem(props.row.id)" size="is-small"
+          >Edit</b-button
+        > -->
+      </b-table-column>
+
+      <template #footer>
+        <td>
+          <span>{{ nextProblemSeq }}</span>
+        </td>
+        <td>
+          <b-field>
+            <b-input
+              ref="problemName"
+              v-model="problemName"
+              placeholder="problem name"
+              @keyup.native.enter="addProblem"
+              @blur="addProblem"
+              :disabled="activityId === null"
+            ></b-input>
+          </b-field>
+        </td>
+        <td>
+          <b-button disabled size="is-small">Edit</b-button>
+        </td>
+      </template>
+    </b-table>
+  </div>
+
+  <b-modal
+    v-model="isEditModalActive"
+    trap-focus
+    :destroy-on-hide="false"
+    aria-role="dialog"
+    aria-label="Edit Modal"
+    aria-modal
+    width="1400"
+  >
+    <template #default="props">
+      <ProblemEdit
+        :activityId="activity.id"
+        :problem="modalProblem"
+        @close="props.close"
+      ></ProblemEdit>
+    </template>
+  </b-modal>
+</section>

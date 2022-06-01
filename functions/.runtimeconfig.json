@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "clientId": "0",
+    "clientSecret": "123456",
+    "scopes": "identity profile",
+    "baseUrl": "https://nuws.nu.ac.th"
+  },
+  "project": {
+    "region": "us-central1"
+  }
+}

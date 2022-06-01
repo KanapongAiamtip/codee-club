@@ -1,0 +1,89 @@
+<section class="section">
+  <NotFound v-if="!course" item="course" class="container" />
+  <div v-else class="container" :class="themeCssClass">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li class="is-active">
+                <a href="#" aria-current="page"
+                  >{{ $route.params.courseSlug }}</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div
+        class="level-right"
+        v-if="course.roleEdit.includes($store.state.currentUser.id)"
+      >
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="buttons has-addons">
+            <router-link
+              class="button is-small"
+              :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+              ><b-icon icon="eye-outline" size="is-small"></b-icon>
+              <span>View</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'CourseEdit', params: { courseSlug: $route.params.courseSlug } }"
+              ><b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'ActivityEdit', params: { courseSlug: $route.params.courseSlug, activitySlug: 'new-activity' } }"
+              ><b-icon icon="plus" size="is-small"></b-icon>
+              <span>Add Activity</span></router-link
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="title is-themed-course-header">{{ course.name }}</h1>
+
+    <!-- Activities -->
+    <div v-if="loadingResults" class="block">
+      <b-icon icon="loading" custom-class="spin"></b-icon>
+    </div>
+    <ul v-else>
+      <li
+        class="activity block"
+        v-for="activity in activities"
+        :key="activity.id"
+      >
+        <b-icon
+          v-if="!activityResultsKeyed[activity.id]"
+          icon="star-outline"
+        ></b-icon>
+        <b-icon
+          v-else-if="activityResultsKeyed[activity.id].totalPercent === 100"
+          icon="star"
+        ></b-icon>
+        <b-icon v-else icon="star-half-full"></b-icon>
+
+        <router-link
+          class="name is-size-4"
+          :to="{ name: 'Activity', params: { courseSlug: course.slug, activitySlug: activity.slug } }"
+        >
+          {{ activity.name }}
+        </router-link>
+
+        <span v-if="activity.status === 'DRAFT'" class="tag">DRAFT</span>
+
+        <span
+          v-if="(!activityResultsKeyed[activity.id] || activityResultsKeyed[activity.id].totalPercent !== 100) && deadlinesKeyed[activity.id]"
+          class="deadline"
+          :class="{ 'urgent': isUrgent(deadlinesKeyed[activity.id]) }"
+        >
+          {{ deadlinesKeyed[activity.id] | deadline }}
+        </span>
+      </li>
+    </ul>
+  </div>
+</section>

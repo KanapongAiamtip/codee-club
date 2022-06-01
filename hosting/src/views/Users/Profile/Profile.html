@@ -1,0 +1,307 @@
+<section class="section">
+  <div v-if="profileLoading">Loading...</div>
+  <div v-else-if="!profileUser" class="container">User not found</div>
+  <div v-else class="container">
+    <div class="columns is-centered has-text-centered">
+      <div
+        class="column is-four-fifths is-two-thirds-desktop is-half-widescreen"
+      >
+        <div class="block">
+          <div class="is-relative">
+            <!-- Avatar -->
+            <figure
+              @click.stop="showModal = true"
+              class="image is-inline-block crop h300"
+            >
+              <img
+                class="is-rounded"
+                :src="profileUser.avatarUrl ? profileUser.avatarUrl : require('@/assets/avatar-default.png')"
+                :alt="`${profileUser.name}'s avatar`"
+              />
+
+              <!-- QR Icon -->
+              <b-icon
+                @click.native.stop="showModal = true"
+                icon="qrcode-scan"
+                size="is-large"
+                class="qr-icon"
+              ></b-icon>
+            </figure>
+
+            <!-- Edit Avatar -->
+            <b-field
+              class="file"
+              style="
+                position: absolute;
+                display: block;
+                bottom: 20px;
+                left: 0;
+                right: 0;
+              "
+            >
+              <b-upload v-if="isMe" v-model="editableAvatarFile">
+                <span class="file-cta">
+                  <b-icon class="file-icon" icon="upload"></b-icon>
+                  <span class="file-label">Update</span>
+                </span>
+              </b-upload>
+            </b-field>
+          </div>
+
+          <!-- QR Modal -->
+          <b-modal
+            v-model="showModal"
+            :width="330"
+            scroll="keep"
+            auto-focus
+            trap-focus
+          >
+            <div class="card has-background-white py-2">
+              <div class="card-image">
+                <div class="has-background-white is-inline-block">
+                  <qr-code
+                    :value="`https://codee.club/profiles/${profileUser.id}`"
+                    :size="260"
+                    class="pt-5 pb-2"
+                  />
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-content">
+                    <figure class="image is-inline-block crop h70">
+                      <img
+                        :src="profileUser.avatarUrl ? profileUser.avatarUrl : require('@/assets/avatar-default.png')"
+                        :alt="`${profileUser.name}'s avatar`"
+                        style="border-radius: 15px"
+                      />
+                    </figure>
+                    <p class="title is-3 has-text-primary pt-1">
+                      {{ profileUser.name.replace(' ', '\r\n') }}
+                    </p>
+                    <!-- TODO: Allow custom `slug` -->
+                    <!-- <p class="subtitle has-text-primary is-4">@johnsmith</p> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </b-modal>
+
+          <!-- Name & Bio -->
+          <h1 class="title mt-3 mb-3 is-2">{{ profileUser.name }}</h1>
+          <div v-if="profileUpdating">Updating...</div>
+
+          <div v-if="isMe && profileEditing">
+            <p>
+              <span @click="saveProfile" class="inline-edit">Save</span>
+              <span @click="cancelProfileEdit" class="inline-edit">Cancel</span>
+            </p>
+
+            <b-field label="Bio" label-position="on-border" class="mt-4">
+              <b-input
+                v-model="editableData.bio"
+                placeholder="OMG I <3 coding"
+                maxlength="200"
+                type="textarea"
+              ></b-input>
+            </b-field>
+
+            <b-field>
+              <b-input
+                v-model="editableData.links.github"
+                placeholder="Add your Github link"
+                type="url"
+                icon="github"
+              ></b-input>
+            </b-field>
+
+            <b-field>
+              <b-input
+                v-model="editableData.links.linkedin"
+                placeholder="Add your Linkedin link"
+                type="url"
+                icon="linkedin"
+              ></b-input>
+            </b-field>
+
+            <b-field>
+              <b-input
+                v-model="editableData.links.facebook"
+                placeholder="Add your Facebook link"
+                type="url"
+                icon="facebook"
+              ></b-input>
+            </b-field>
+          </div>
+          <div v-else>
+            <p v-if="isMe">
+              <span @click="beginProfileEdit" class="inline-edit">Edit</span>
+            </p>
+
+            <p
+              class="pt-3 has-text-weight-semibold"
+              style="overflow-wrap: break-word; white-space: pre"
+            >
+              {{ profileUser.bio }}
+              <span
+                v-if="isMe && !profileUser.bio || profileUser.bio.length === 0"
+                class="missing"
+              >
+                Bio not set
+              </span>
+            </p>
+
+            <p v-if="profileUser.createdAt" class="mt-2 has-text-grey-light">
+              Joined: {{ profileUser.createdAt | monthYear }}
+            </p>
+
+            <p class="mt-2">
+              <a v-for="link in links" :key="link[0]" :href="link[1]">
+                <img
+                  :src="require(`@/assets/icons/${link[0]}.svg`)"
+                  :alt="link[1]"
+                  class="px-1"
+                />
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="block" v-if="currentUserId !== undefined && !isMe">
+          <b-button
+            @click.native="follow()"
+            class="is-primary"
+            :outlined="isFollowing"
+            :loading="followUpdating"
+          >
+            <span v-if="isFollowing">Unfollow</span>
+            <span v-else>Follow</span>
+          </b-button>
+        </div>
+
+        <b-tabs position="is-centered" expanded multiline>
+          <b-tab-item
+            :label="`Followers (${profileUser.followerIds ? profileUser.followerIds.length : 0})`"
+          >
+            <p v-if="followers.length === 0" class="missing">
+              No one is following {{ profileUser.nameFirst }}
+            </p>
+            <table v-else class="table table-sm is-fullwidth">
+              <tr v-for="f in followers" :key="f.name">
+                <td class="is-narrow">
+                  <router-link
+                    :to="{ name: 'Profile', params: { userId: f.id }}"
+                  >
+                    <figure class="image is-inline-block crop h35">
+                      <img
+                        :src="f.avatarUrl ? f.avatarUrl :
+            require('@/assets/avatar-default.png')"
+                        :alt="f.name"
+                        class="is-rounded"
+                      />
+                    </figure>
+                  </router-link>
+                </td>
+                <td class="has-text-left">
+                  <router-link
+                    :to="{ name: 'Profile', params: { userId: f.id }}"
+                    class="is-size-5 has-text-weight-medium"
+                  >
+                    {{ f.name }}
+                  </router-link>
+                  <p
+                    class="has-text-weight-light"
+                    style="overflow-wrap: break-word"
+                  >
+                    {{ f.bio }}
+                  </p>
+                </td>
+                <td class="is-narrow">
+                  <span v-if="currentUserId === undefined"></span>
+                  <span v-else-if="f.id === currentUserId">YOU</span>
+                  <span
+                    v-else-if="f.followerIds && f.followerIds.includes(currentUserId)"
+                  >
+                    <b-button
+                      @click="$dao.followUser(currentUserId, f.id, false)"
+                      icon-left="account-check"
+                      size="is-medium"
+                      type="is-info"
+                    ></b-button>
+                  </span>
+                  <span v-else>
+                    <b-button
+                      @click="$dao.followUser(currentUserId, f.id, true)"
+                      icon-left="account-plus"
+                      size="is-medium"
+                    ></b-button>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </b-tab-item>
+          <b-tab-item
+            :label="`Following (${profileUser.followingIds ? profileUser.followingIds.length : 0})`"
+          >
+            <p v-if="following.length === 0" class="missing">
+              {{ profileUser.nameFirst }} isn't following anyone
+            </p>
+            <table v-else class="table table-sm is-fullwidth">
+              <tr v-for="f in following" :key="f.name">
+                <td class="is-narrow">
+                  <router-link
+                    :to="{ name: 'Profile', params: { userId: f.id }}"
+                  >
+                    <figure class="image is-inline-block crop h35">
+                      <img
+                        :src="f.avatarUrl ? f.avatarUrl :
+          require('@/assets/avatar-default.png')"
+                        :alt="f.name"
+                        class="is-rounded"
+                      />
+                    </figure>
+                  </router-link>
+                </td>
+                <td class="has-text-left">
+                  <router-link
+                    :to="{ name: 'Profile', params: { userId: f.id }}"
+                    class="is-size-5 has-text-weight-medium"
+                  >
+                    {{ f.name }}
+                  </router-link>
+                  <p
+                    class="has-text-weight-light"
+                    style="overflow-wrap: break-word"
+                  >
+                    {{ f.bio }}
+                  </p>
+                </td>
+                <td class="is-narrow">
+                  <span v-if="currentUserId === undefined"></span>
+                  <span v-else-if="f.id === currentUserId">YOU</span>
+                  <span
+                    v-else-if="f.followerIds && f.followerIds.includes(currentUserId)"
+                  >
+                    <b-button
+                      @click="$dao.followUser(currentUserId, f.id, false)"
+                      icon-left="account-check"
+                      size="is-medium"
+                      type="is-info"
+                    ></b-button>
+                  </span>
+                  <span v-else>
+                    <b-button
+                      @click="$dao.followUser(currentUserId, f.id, true)"
+                      icon-left="account-plus"
+                      size="is-medium"
+                    ></b-button>
+                  </span>
+                </td>
+              </tr>
+            </table>
+          </b-tab-item>
+        </b-tabs>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,189 @@
+<section class="section">
+  <NotFound v-if="!activity" item="activity" class="container" />
+  <div v-else class="container" :class="themeCssClass">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <nav class="breadcrumb is-medium">
+            <ul>
+              <li>
+                <router-link
+                  :to="{ name: 'Course', params: { courseSlug: $route.params.courseSlug } }"
+                  >{{ $route.params.courseSlug }}</router-link
+                >
+              </li>
+              <li class="is-active">
+                <a href="#" aria-current="page">{{ activity.name }}</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <div
+        class="level-right"
+        v-if="course.roleEdit.includes($store.state.currentUser.id)"
+      >
+        <div class="level-item toolbox">
+          <b-icon icon="school" class="mr-2"></b-icon>
+          <div class="mr-2">
+            <span class="has-text-weight-bold">{{ activity.status }}</span>
+          </div>
+          <div class="buttons has-addons">
+            <router-link
+              class="button is-small"
+              :to="{ name: 'Activity', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="eye-outline" size="is-small"></b-icon>
+              <span>View</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'ActivityEdit', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="pencil" size="is-small"></b-icon>
+              <span>Edit</span></router-link
+            >
+            <router-link
+              class="button is-small"
+              :to="{ name: 'TeachProgress', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug } }"
+              ><b-icon icon="chart-areaspline" size="is-small"></b-icon>
+              <span>Progress</span></router-link
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="level is-themed-course-header">
+      <div class="level-left">
+        <div class="level-item">
+          <h1 class="title">{{ activity.name }}</h1>
+        </div>
+      </div>
+    </nav>
+
+    <div v-if="loadingResults" class="block">
+      <b-icon icon="loading" custom-class="spin"></b-icon>
+    </div>
+    <div v-else class="columns">
+      <div class="column">
+        <!-- Deadline -->
+        <div class="block">
+          <!-- TODO Chaz: Add explicit isComplete (that's not dependent on rounding) -->
+          <span v-if="myActivityResult && myActivityResult.isComplete">
+            <b-icon icon="check"></b-icon> COMPLETE
+          </span>
+          <span
+            v-else-if="deadline"
+            class="deadline is-flex is-align-content-center"
+            :class="{ 'urgent': isUrgent(deadline) }"
+          >
+            <b-icon icon="calendar-lock" class="mr-1"></b-icon>
+            {{ deadline | deadline }} ({{ deadline | fromNow }})
+          </span>
+        </div>
+        <!-- Problem list -->
+        <div
+          v-for="problem in problemsSorted"
+          :key="problem.id"
+          class="block problem"
+        >
+          <span class="status">
+            <span
+              v-if="!myBestProblemResultsKeyed[problem.id]"
+              class="tag is-rounded is-light"
+              >NEW</span
+            >
+            <span
+              v-else-if="myBestProblemResultsKeyed[problem.id].status === 'PASS'"
+              class="tag is-rounded is-success"
+              ><b-icon icon="check"></b-icon
+            ></span>
+            <span v-else class="tag is-rounded is-warning"
+              >{{ myBestProblemResultsKeyed[problem.id].percent }}%</span
+            >
+          </span>
+          <router-link
+            class="name is-size-4"
+            :to="{ name: 'Problem', params: { courseSlug: $route.params.courseSlug, activitySlug: $route.params.activitySlug, problemSeq: problem.seq } }"
+            >{{ problem.name }}</router-link
+          >
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div
+        class="column is-narrow is-full-mobile box leaderboard px-5 py-4 mt-4"
+      >
+        <b-tabs v-model="activeLeaderboardTab" expanded multiline>
+          <b-tab-item
+            v-for="leaderboard in leaderboards"
+            :key="leaderboard.label"
+            :label="leaderboard.label"
+            :icon="leaderboard.icon"
+          >
+            <b-table
+              v-if="leaderboard.data.length"
+              :data="leaderboard.data"
+              :row-class="(row,index) => row.userId === user.id && 'is-you'"
+              :loading="loadingResults"
+              :mobile-cards="false"
+            >
+              <b-table-column field="rank" label="Rank" centered v-slot="props"
+                >{{ props.row.rank }}</b-table-column
+              >
+              <b-table-column field="userId" label="Name" v-slot="props">
+                <router-link
+                  :to="{ name: 'Profile', params: { userId: props.row.userId } }"
+                >
+                  <figure class="image is-inline-block crop mr-2">
+                    <img
+                      class="is-rounded"
+                      :src="props.row.userAvatarUrl ? props.row.userAvatarUrl : require('@/assets/avatar-default.png')"
+                    />
+                  </figure>
+                  <span style="white-space: nowrap"
+                    >{{ (props.row.userId === user.id) ? 'You' :
+                    props.row.userName }}</span
+                  >
+                </router-link>
+              </b-table-column>
+              <b-table-column
+                field="totalPercent"
+                label="Score"
+                numeric
+                v-slot="props"
+                >{{ props.row.totalPercent.toFixed(0) }}</b-table-column
+              >
+              <template
+                v-if="!leaderboard.myActivityResult || leaderboard.myActivityResult.rank > leaderboardSize"
+                slot="footer"
+              >
+                <td class="is-you outside" style="text-align: center">
+                  {{ leaderboard.myActivityResult ?
+                  leaderboard.myActivityResult.rank : '-' }}
+                </td>
+                <td class="is-you outside" style="text-align: left">
+                  <router-link
+                    :to="{ name: 'Profile', params: { userId: user.id } }"
+                  >
+                    <figure class="image is-inline-block crop mr-2">
+                      <img
+                        class="is-rounded"
+                        :src="user.avatarUrl ? user.avatarUrl : require('@/assets/avatar-default.png')"
+                      />
+                    </figure>
+                    You
+                  </router-link>
+                </td>
+                <td class="is-you outside" style="text-align: right">
+                  {{ leaderboard.myActivityResult ?
+                  leaderboard.myActivityResult.totalPercent : '-' }}
+                </td>
+              </template>
+            </b-table>
+            <p v-else class="has-text-grey-lighter">No submissions</p>
+          </b-tab-item>
+        </b-tabs>
+      </div>
+    </div>
+  </div>
+</section>

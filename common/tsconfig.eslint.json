@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    // src
+    "src/**/*.ts",
+    // scripts & configs
+    "*.ts",
+    "*.js",
+    "*.json",
+    ".*.ts",
+    ".*.js",
+    ".*.json"
+  ]
+}

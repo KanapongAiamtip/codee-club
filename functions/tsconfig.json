@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "paths": {
+      "@codee-club/common/dist/*": ["../common/src/*"] // suggest dist not src
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../common/tsconfig.json" }]
+}

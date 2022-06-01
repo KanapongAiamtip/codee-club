@@ -1,0 +1,131 @@
+@import '@/scss/variables';
+@import '~bulma/sass/utilities/mixins';
+
+.disabled {
+  color: $disabled;
+  pointer-events: none;
+}
+
+.testcases pre {
+  margin: 2px 0;
+  padding: 15px;
+  border: 1px solid $disabled;
+  background-color: $white;
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+}
+
+.submit {
+  @include from($tablet) {
+    max-width: 275px;
+  }
+}
+
+.results-list {
+  width: 100%;
+}
+
+.results-list td {
+  padding: 2px 0;
+}
+
+.results-list td:last-child {
+  text-align: right;
+}
+
+.result-link {
+  color: $link;
+  cursor: pointer;
+}
+
+.result-link:hover {
+  color: $link-hover;
+}
+
+.result-percent-0 {
+  color: #f80;
+}
+
+.result-percent-25 {
+  color: #eb0;
+}
+
+.result-percent-50 {
+  color: #dc0;
+}
+
+.result-percent-75 {
+  color: #9b3;
+}
+
+.result-percent-100 {
+  color: $success;
+}
+
+.modal-result .modal-card-body {
+  height: 50vh;
+  min-height: 50vh;
+}
+
+.modal-result pre {
+  border: 1px solid $disabled;
+  line-height: 1.35rem;
+}
+
+.result-evaluating {
+  color: $disabled;
+  font-style: italic;
+}
+
+.result-pass-emoji {
+  font-size: 5rem;
+  font-weight: 200;
+}
+
+.test-hidden {
+  color: $disabled;
+  font-style: italic;
+}
+
+.result-compare .column {
+  display: flex;
+}
+
+.result-compare pre {
+  position: relative;
+  width: 100%;
+  counter-reset: line;
+}
+
+.result-compare pre .line {
+  display: block;
+  line-height: 1.5rem;
+}
+
+pre span::before {
+  content: counter(line);
+  display: inline-block;
+  margin-right: 0.75rem;
+  margin-left: -0.75rem;
+  padding: 0 0.5rem;
+  border-right: 1px solid #ddd;
+  color: #888;
+  counter-increment: line;
+}
+
+.result-compare pre::after {
+  position: absolute;
+  z-index: 100;
+  top: 0;
+  right: 5px;
+  color: $disabled;
+  font-family: $family-monospace;
+}
+
+.result-compare .expected::after {
+  content: 'expected';
+}
+
+.result-compare .actual::after {
+  content: 'actual';
+}

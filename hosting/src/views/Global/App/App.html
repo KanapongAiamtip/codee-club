@@ -1,0 +1,273 @@
+<div id="app">
+  <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <div class="container">
+      <!-- Logo -->
+      <div class="navbar-brand ml-0">
+        <router-link
+          :to="{ name: 'Home' }"
+          class="navbar-item brand"
+          active-class=""
+          exact-active-class=""
+        >
+          Codee.Club <sup>BETA</sup>
+        </router-link>
+
+        <a
+          role="button"
+          class="navbar-burger"
+          aria-label="menu"
+          aria-expanded="false"
+          @click="showMenu = !showMenu"
+          :class="{ 'is-active': showMenu }"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div class="navbar-menu" :class="{ 'is-active': showMenu }">
+        <!-- About, Idea, Version -->
+        <div class="navbar-start">
+          <b-navbar-item tag="router-link" :to="{ name: 'About' }">
+            About
+          </b-navbar-item>
+          <b-navbar-item
+            href="https://github.com/codee-club/contributors/issues"
+          >
+            Idea?
+          </b-navbar-item>
+          <b-navbar-item
+            @click="$router.push({ name: 'ReleaseNotes' })"
+            tag="div"
+            class="codee-version"
+          >
+            <div
+              class="tag"
+              :class="buildVersion === 'local' ? 'is-warning' : 'is-info'"
+            >
+              {{ buildVersion }}
+            </div>
+          </b-navbar-item>
+        </div>
+
+        <div class="navbar-end">
+          <!-- Sign in -->
+          <b-navbar-item
+            v-if="showSignIn && !user"
+            tag="router-link"
+            :to="{ name: 'Login' }"
+            class="is-light"
+          >
+            Sign in (dev)
+          </b-navbar-item>
+
+          <!-- Profile -->
+          <b-navbar-item
+            v-if="user"
+            tag="router-link"
+            :to="{ name: 'Profile', params: { userId: user.id } }"
+          >
+            <figure class="image is-inline-block crop h28 mr-2">
+              <img
+                :src="user.avatarUrl ? user.avatarUrl : require('@/assets/avatar-default.png')"
+                :alt="user.name"
+                class="is-rounded"
+              />
+            </figure>
+            {{ user.nameFirst }}
+          </b-navbar-item>
+
+          <!-- Social Notifications -->
+          <b-navbar-dropdown
+            v-if="user"
+            @click.native="viewedSocial"
+            class="notifications-icon"
+            right
+            arrowless
+          >
+            <template slot="label">
+              <b-icon icon="account-group"></b-icon>
+              <span class="ml-2 is-hidden-tablet">Social Notifications</span>
+              <div
+                v-if="hasBadgeSocial"
+                class="notifications-badge has-background-info"
+              ></div>
+            </template>
+            <b-navbar-item
+              v-if="notificationsSocialLast10.length ===0"
+              class="is-italic"
+              style="min-width: 18rem"
+            >
+              No notifications
+            </b-navbar-item>
+            <div
+              v-for="notification in notificationsSocialLast10"
+              :key="`noti-social-${notification.date.seconds}`"
+            >
+              <b-navbar-item
+                v-if="notification.notificationType == 'PROFILE_UPDATED'"
+                tag="router-link"
+                :to="{ name: 'Profile', params: { userId: notification.userId } }"
+                class="notification-item"
+              >
+                <figure class="image is-inline-block crop h35 mr-1">
+                  <img
+                    :src="notification.imageUrl"
+                    :alt="`${notification.userNameFirst}'s avatar`"
+                    class="is-rounded"
+                  />
+                </figure>
+                <div class="ml-2">
+                  <p class="has-text-weight-semibold">
+                    {{ notification.userNameFirst }} updated their profile
+                  </p>
+                  <p class="missing">{{ notification.date | notiTime }}</p>
+                </div>
+              </b-navbar-item>
+              <b-navbar-item
+                v-else-if="notification.notificationType == 'NEW_FOLLOWER'"
+                tag="router-link"
+                :to="{ name: 'Profile', params: { userId: notification.followerId } }"
+              >
+                <figure class="image is-inline-block crop h35 mr-1">
+                  <img
+                    :src="notification.imageUrl"
+                    :alt="`${notification.userNameFirst}'s avatar`"
+                    class="is-rounded"
+                  />
+                </figure>
+                <div class="ml-2">
+                  <p class="has-text-weight-semibold">
+                    {{ notification.followerNameFirst }} started following you
+                  </p>
+                  <p
+                    v-if="$store.state.currentUser.followingIds.includes(notification.followerId)"
+                    class="is-italic"
+                  >
+                    you already follow them
+                  </p>
+                  <a
+                    v-else
+                    @click.prevent.stop="$dao.followUser($store.state.currentUser.id, notification.followerId)"
+                    class="is-block"
+                  >
+                    follow back
+                  </a>
+                  <p class="missing">{{ notification.date | notiTime }}</p>
+                </div>
+              </b-navbar-item>
+            </div>
+          </b-navbar-dropdown>
+
+          <!-- Study Notifications -->
+          <b-navbar-dropdown
+            v-if="user"
+            @click.native="viewedStudy"
+            class="notifications-icon"
+            right
+            arrowless
+          >
+            <template slot="label">
+              <b-icon icon="book-edit-outline"></b-icon>
+              <span class="ml-2 is-hidden-tablet">Course Notifications</span>
+              <div
+                v-if="hasBadgeStudy"
+                class="notifications-badge has-background-accent"
+              ></div>
+            </template>
+            <b-navbar-item
+              v-if="notificationsStudyLast10.length ===0"
+              class="is-italic"
+              style="min-width: 18rem"
+            >
+              No notifications
+            </b-navbar-item>
+            <div
+              v-for="notification in notificationsStudyLast10"
+              :key="`noti-study-${notification.date.seconds}`"
+            >
+              <b-navbar-item
+                v-if="notification.notificationType == 'DEADLINE_REMINDER'"
+                tag="router-link"
+                :to="{ name: 'Activity', params: { courseSlug: notification.courseSlug, activitySlug: notification.activitySlug } }"
+                class="notification-item"
+              >
+                <b-icon
+                  icon="calendar-lock"
+                  :type="notification.dueInDays === 0 ? 'is-danger' : ''"
+                ></b-icon>
+                <div class="ml-3">
+                  <p class="has-text-weight-semibold">
+                    {{ notification.activityName }}
+                  </p>
+                  <p
+                    v-if="notification.dueInDays === 0"
+                    class="has-text-danger"
+                  >
+                    Due today
+                  </p>
+                  <p v-else-if="notification.dueInDays === 1">Due tomorrow</p>
+                  <p v-else>Due this week</p>
+                </div>
+              </b-navbar-item>
+            </div>
+          </b-navbar-dropdown>
+
+          <!-- Sign out -->
+          <b-navbar-item @click.prevent="signout" class="is-hidden-tablet">
+            <b-icon icon="logout"></b-icon>
+            <span class="ml-2">Sign out</span>
+          </b-navbar-item>
+          <b-navbar-dropdown
+            v-if="user"
+            class="is-hidden-mobile"
+            right
+            arrowless
+          >
+            <template slot="label">
+              <b-icon icon="chevron-down"></b-icon>
+            </template>
+            <b-navbar-item @click.prevent="signout">Sign out</b-navbar-item>
+          </b-navbar-dropdown>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <router-view />
+
+  <!-- Footer -->
+  <footer class="footer mt-5 pb-6">
+    <div class="content has-text-centered">
+      <p class="made-by">
+        Made with ❤ in <strong>Phitsanulok</strong><br />
+        by <router-link :to="{ name:'About' }">members</router-link> of the
+        <a href="https://www.facebook.com/phits.tech">Phits Tech</a>
+        community
+      </p>
+      <p class="built-with">
+        <a href="https://vuejs.org" class="built-with-vue">
+          <img src="@/assets/icons/vue.svg" alt="VueJS" height="16" />
+        </a>
+        <a href="https://firebase.google.com">
+          <img src="@/assets/icons/firebase.svg" alt="Firebase" height="16" />
+        </a>
+        <a href="https://typescriptlang.org">
+          <img
+            src="@/assets/icons/typescript.svg"
+            alt="TypeScript"
+            height="16"
+          />
+        </a>
+        <a href="https://eslint.org" class="built-with-eslint">
+          <img src="@/assets/icons/eslint.svg" alt="ESLint" height="16" />
+        </a>
+        <a href="https://github.com/codee-club">
+          <img src="@/assets/icons/github.svg" alt="GitHub" height="16" />
+        </a>
+      </p>
+    </div>
+  </footer>
+</div>

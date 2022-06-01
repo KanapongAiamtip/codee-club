@@ -1,0 +1,32 @@
+<div class="about">
+  <section class="section">
+    <div class="container">
+      <p>
+        Codee.Club was developed as a collaboration amongst members of the
+        <a href="https://phits.tech">Phits.Tech developer community</a>. We give
+        thanks to our generous contributors :)
+      </p>
+      <p class="mt-4">Want to contribute? Please contact Antony Harfield!</p>
+      <div class="columns is-multiline mt-4">
+        <div
+          class="is-size-6 column is-4 is-3-desktop is-2-widescreen"
+          v-for="contributor in contributorsSorted"
+          :key="`about-contributors-${contributor.id}`"
+        >
+          <router-link
+            :to="{ name: 'Profile', params: { userId: contributor.id } }"
+          >
+            <div class="has-text-centered">
+              <img
+                :src="contributor.avatarUrl ? contributor.avatarUrl : require('@/assets/avatar-default.png')"
+                :alt="contributor.name"
+                class="px-5 pt-2 px-2-tablet"
+              />
+              <p class="is-size-2 is-size-4-tablet">{{ contributor.name }}</p>
+            </div></router-link
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

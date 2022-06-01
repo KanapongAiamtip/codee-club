@@ -1,0 +1,130 @@
+<div class="box has-minimum-margin">
+  <div class="columns mb-0">
+    <div class="column is-9">
+      <b-field label="Problem Name" label-position="on-border">
+        <b-input
+          v-model="formModel.name"
+          @change.native="fieldChanged('name', $event)"
+          size="is-large"
+        ></b-input>
+      </b-field>
+      <b-field label="Description" label-position="on-border">
+        <b-input
+          v-model="formModel.description"
+          @change.native="fieldChanged('description', $event)"
+          type="textarea"
+        ></b-input>
+      </b-field>
+    </div>
+    <div class="column is-3 has-text-right">
+      <b-message>
+        <ul>
+          <li>
+            Name and description
+            <b-icon
+              :icon="hasValidNameDescription(formModel) ? 'check' : 'close'"
+              :type="hasValidNameDescription(formModel) ? 'is-success' : 'is-danger'"
+            ></b-icon>
+          </li>
+          <li>
+            At least 1 visible test
+            <b-icon
+              :icon="hasMinimumVisibleTests(formModel) ? 'check' : 'close'"
+              :type="hasMinimumVisibleTests(formModel) ? 'is-success' : 'is-danger'"
+            ></b-icon>
+          </li>
+          <li>
+            At least 5 tests in total
+            <b-icon
+              :icon="hasMinimumTests(formModel) ? 'check' : 'close'"
+              :type="hasMinimumTests(formModel) ? 'is-success' : 'is-danger'"
+            ></b-icon>
+          </li>
+          <li>
+            Verified with solution
+            <b-icon
+              :icon="hasVerifiedSolution(formModel) ? 'check' : 'close'"
+              :type="hasVerifiedSolution(formModel) ? 'is-success' : 'is-danger'"
+            ></b-icon>
+          </li>
+        </ul>
+      </b-message>
+    </div>
+  </div>
+
+  <b-table :data="testsSorted" ref="tests">
+    <b-table-column field="seq" label="Order" width="40" v-slot="props">
+      <b-button
+        @click.native="swapTest(props.row.seq, props.row.seq-1)"
+        :disabled="props.row.seq == 1"
+        icon-right="arrow-up-thick"
+      />
+      <b-button
+        @click.native="deleteTest(props.row.id)"
+        icon-right="delete-outline"
+      />
+      <b-button
+        @click.native="swapTest(props.row.seq, props.row.seq+1)"
+        :disabled="props.row.seq == testsSorted.length"
+        icon-right="arrow-down-thick"
+      />
+    </b-table-column>
+    <b-table-column field="input" label="Input" v-slot="props">
+      <b-input
+        v-model="props.row.input"
+        type="textarea"
+        custom-class="is-family-code"
+        placeholder="Input to the program"
+        @change.native="fieldInTestsChanged(props.row.id, 'input', $event)"
+      ></b-input>
+    </b-table-column>
+    <b-table-column field="expected" label="Output" v-slot="props">
+      <b-input
+        v-model="props.row.expected"
+        type="textarea"
+        custom-class="is-family-code"
+        placeholder="Expected output from the program"
+        @change.native="fieldInTestsChanged(props.row.id, 'expected', $event)"
+      ></b-input>
+    </b-table-column>
+    <b-table-column
+      field="visibility"
+      label="Visible"
+      width="40"
+      v-slot="props"
+    >
+      <b-switch
+        v-model="props.row.visibility"
+        true-value="VISIBLE"
+        false-value="HIDDEN"
+        @input="switchInTestsChanged(props.row.id, 'visibility', $event)"
+      ></b-switch>
+    </b-table-column>
+    <template #footer>
+      <td>
+        <b-button disabled icon-right="arrow-up-thick" />
+        <b-button disabled icon-right="delete-outline" />
+        <b-button disabled icon-right="arrow-down-thick" />
+      </td>
+      <td>
+        <b-input
+          type="textarea"
+          custom-class="is-family-code"
+          placeholder="Input to the program"
+          @focus="fieldInTestsAdded('input', $event)"
+        ></b-input>
+      </td>
+      <td>
+        <b-input
+          type="textarea"
+          custom-class="is-family-code"
+          placeholder="Expected output from the program"
+          @focus="fieldInTestsAdded('expected', $event)"
+        ></b-input>
+      </td>
+      <td>
+        <b-switch disabled></b-switch>
+      </td>
+    </template>
+  </b-table>
+</div>

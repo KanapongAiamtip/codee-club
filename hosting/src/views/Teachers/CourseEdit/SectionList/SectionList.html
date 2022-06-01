@@ -1,0 +1,66 @@
+<div class="block">
+  <div class="tabs">
+    <ul>
+      <li
+        v-for="(s, i) in sectionsSorted"
+        :class="{ 'is-active': i === sectionIndex }"
+      >
+        <a @click="sectionIndex = i">Group {{ s.code }}</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="level mx-3">
+    <div class="level-left">
+      <div class="level-item">
+        Total {{ studentsForSection.length }} students
+      </div>
+      <div class="level-item">
+        <button class="button" @click="isImportModalActive = true">
+          Import
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <b-table :data="studentsForSection">
+    <template>
+      <b-table-column field="id" label="Code" width="1" sortable v-slot="props">
+        {{ props.row.code }}
+      </b-table-column>
+      <b-table-column
+        field="nameFirst"
+        label="First Name"
+        sortable
+        v-slot="props"
+      >
+        <span style="white-space: nowrap">{{ props.row.nameFirst }}</span>
+      </b-table-column>
+      <b-table-column
+        field="nameLast"
+        label="Last Name"
+        sortable
+        v-slot="props"
+      >
+        <span style="white-space: nowrap">{{ props.row.nameLast }}</span>
+      </b-table-column>
+    </template>
+  </b-table>
+
+  <b-modal
+    v-model="isImportModalActive"
+    has-modal-card
+    trap-focus
+    aria-role="dialog"
+    aria-label="Import"
+    aria-modal
+  >
+    <template #default="props">
+      <Import
+        v-bind:courseId="course.id"
+        v-bind:section="section"
+        @close="props.close"
+      />
+    </template>
+  </b-modal>
+</div>

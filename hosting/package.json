@@ -1,0 +1,49 @@
+{
+  "name": "@codee-club/hosting",
+  "version": "0.0.10",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Client-side web app",
+  "scripts": {
+    "build": "vue-cli-service build",
+    "clean": "rimraf ./dist",
+    "deploy": "firebase deploy --only hosting",
+    "fix": "vue-cli-service lint --fix && prettier --loglevel warn --write \"{**/,.}*.{html,js,json}\" && stylelint --fix \"**/*.{css,scss}\"",
+    "lint": "vue-cli-service lint && prettier --check \"{**/,.}*.{html,js,json}\" && stylelint \"**/*.{css,scss}\"",
+    "rebuild": "yarn clean && yarn build",
+    "serve": "vue-cli-service serve --open"
+  },
+  "dependencies": {
+    "@codee-club/common": "^0.0.10",
+    "buefy": "^0.9.7",
+    "core-js": "^3.14.0",
+    "dedent-js": "^1.0.1",
+    "firebase": "8.6.5",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1",
+    "qrcode.vue": "1.7.0",
+    "vue": "^2.6.14",
+    "vue-class-component": "^7.2.6",
+    "vue-meta": "^2.4.0",
+    "vue-property-decorator": "^9.1.2",
+    "vue-router": "^3.5.1",
+    "vue-router-multiguard": "^1.0.3",
+    "vuefire": "^2.2.5",
+    "vuex": "^3.6.2",
+    "vuexfire": "^3.2.5"
+  },
+  "devDependencies": {
+    "@mdi/font": "^5.9.55",
+    "@vue/cli-plugin-babel": "~4.5.13",
+    "@vue/cli-plugin-eslint": "~4.5.13",
+    "@vue/cli-plugin-router": "~4.5.13",
+    "@vue/cli-plugin-typescript": "~4.5.13",
+    "@vue/cli-plugin-unit-jest": "~4.5.13",
+    "@vue/cli-plugin-vuex": "~4.5.13",
+    "@vue/cli-service": "~4.5.13",
+    "node-sass": "~5",
+    "sass-loader": "~10",
+    "vue-template-compiler": "^2.6.14",
+    "webpack": "~4"
+  }
+}

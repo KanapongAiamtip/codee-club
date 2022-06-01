@@ -1,0 +1,11 @@
+{
+  "name": "@codee-club/docs",
+  "version": "0.0.10",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Documentation",
+  "scripts": {
+    "fix": "prettier --loglevel warn --write \"**/*.md\"",
+    "lint": "prettier --check \"**/*.md\""
+  }
+}

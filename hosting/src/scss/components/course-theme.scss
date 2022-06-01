@@ -1,0 +1,12 @@
+@import '@/scss/variables';
+
+@each $name, $components in $theme-colors {
+  $color: nth($components, 1);
+  $color-invert: nth($components, 2);
+  &.is-#{$name} {
+    .is-themed-course-header {
+      padding-bottom: 1rem;
+      border-bottom: 4px solid $color;
+    }
+  }
+}

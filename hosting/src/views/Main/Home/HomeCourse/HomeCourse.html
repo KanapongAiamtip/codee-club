@@ -1,0 +1,41 @@
+<div
+  class="column is-full-mobile is-half-tablet is-half-desktop is-one-third-widescreen"
+>
+  <article class="panel" :class="themeCssClass">
+    <router-link
+      tag="div"
+      :to="{ name: 'Course', params: { courseSlug: course.slug } }"
+      class="panel-heading is-clickable"
+    >
+      <b-icon
+        :icon="themeIcon"
+        size="is-large"
+        class="is-pulled-right"
+      ></b-icon>
+      <div class="code">{{ $props.course.code }}</div>
+      <div class="name">{{ $props.course.name }}</div>
+    </router-link>
+
+    <router-link
+      v-for="activity in activities"
+      :key="activity.id"
+      class="panel-block py-4"
+      :to="{ name: 'Activity', params: { courseSlug: course.slug, activitySlug: activity.slug } }"
+    >
+      <span class="panel-icon">
+        <b-icon v-if="!keyedResults[activity.id]" icon="star-outline"></b-icon>
+        <b-icon
+          v-else-if="keyedResults[activity.id].totalPercent === 100"
+          icon="star"
+        ></b-icon>
+        <b-icon v-else icon="star-half-full"></b-icon>
+      </span>
+      {{ activity.name }}
+    </router-link>
+    <div v-if="activities.length === 0" class="panel-block py-4">
+      <i>No activities yet</i>
+    </div>
+  </article>
+</div>
+
+<!-- TODO Chaz: Maybe add a direct link to the next problem -->

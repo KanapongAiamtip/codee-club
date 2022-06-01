@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Requestor
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(id) {
+      return request.auth != null && request.auth.uid == id;
+    }
+
+    function isCreator() {
+      return request.auth != null && 'creator' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+    }
+
+    function isAdministrator() {
+      return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.administrator == true;
+    }
+
+    // Create
+    function setsAll(requiredFields) {
+      return request.resource.data.keys().hasAll(requiredFields)
+    }
+
+    // Update
+    function onlyChangesField(allowedField) {
+      return onlyChangesFields([allowedField])
+    }
+
+    function onlyChangesFields(allowedFields) {
+      let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      return affectedKeys.hasOnly(allowedFields);
+    }
+
+    function doesntChangeField(disallowedField) {
+      return doesntChangeFields([disallowedField])
+    }
+
+    function doesntChangeFields(disallowedFields) {
+      let affectedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      return !affectedKeys.hasAny(disallowedFields)
+    }
+
+    function onlyUnions(field, object) {
+      let added = request.resource.data[field].toSet().difference(resource.data[field].toSet());
+      return added.size() == 0 || added.hasOnly([object]);
+    }
+
+    function onlyRemoves(field, object) {
+      let removed = resource.data[field].toSet().difference(request.resource.data[field].toSet());
+      return removed.size() == 0 || removed.hasOnly([object]);
+    }
+
+    function onlyUnionsOrRemoves(field, userId) {
+      return onlyUnions(field, userId) && onlyRemoves(field, userId);
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow create: if isUser(request.resource.id) && setsAll(['name', 'nameFirst', 'nameLast', 'createdAt'])
+      allow read: if true;
+      allow update: if (isUser(userId) && doesntChangeField('roles')) || 
+      (onlyChangesField('followerIds') && onlyUnionsOrRemoves('followerIds', request.auth.uid));
+      allow delete: if false;
+    }
+
+    match /usersPrivate/{userId} {
+      allow read, write: if isUser(userId);
+    }
+
+    match /submissionJobs/{submissionId} {
+      allow create: if isUser(request.resource.data.userId);
+      allow read: if isUser(resource.data.userId);
+      allow update, delete: if false;
+    }
+
+    match /courses/{courseId} {
+      allow create: if isCreator();
+      allow read: if isLoggedIn(); // && request.auth.uid in resource.data.roleView;
+      allow update, delete: if isLoggedIn() && request.auth.uid in resource.data.roleEdit;
+    }
+
+    match /activityProblemSets/{activityId} {
+      allow create: if isLoggedIn() && request.auth.uid in get(/databases/$(database)/documents/courses/$(request.resource.data.courseId)).data.roleEdit;
+      allow read: if isLoggedIn(); // && request.auth.uid in resource.data.roleView;
+      allow update, delete: if isLoggedIn(); // && request.auth.uid in get(/databases/$(database)/documents/courses/$(resource.data.courseId)).data.roleEdit;
+    }
+
+    match /activityResults/{resultId} {
+      allow create: if isUser(request.resource.data.userId) && request.auth.uid in get(/databases/$(database)/documents/activityProblemSets/$(request.resource.data.activityId)).data.roleView;
+      allow read: if isLoggedIn(); // TODO: Move leaderboard to separate object
+      allow update: if isUser(resource.data.userId); // TODO Only allow some keys to be changed (diff + affectedKeys)
+      allow delete: if false;
+    }
+
+    match /invites/{inviteId} {
+      allow create, read, update, delete: if false; // TODO: Implement invites
+    }
+
+    match /configuration/{configId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /runners/{runnerId} {
+      allow read, write: if isAdministrator();
+    }
+  }
+}

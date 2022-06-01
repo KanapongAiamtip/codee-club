@@ -1,0 +1,79 @@
+@import '@/scss/variables';
+
+.panel {
+  margin-bottom: 0.5rem;
+
+  @each $name, $components in $theme-colors {
+    $color: nth($components, 1);
+    $color-invert: nth($components, 2);
+    &.is-#{$name} {
+      .panel-heading {
+        border-bottom: 4px solid $color;
+        background-color: $white-ter;
+        color: inherit;
+
+        .icon {
+          color: $color;
+        }
+
+        &:hover {
+          color: $color;
+        }
+      }
+
+      a.panel-block:hover,
+      a.panel-block:hover .panel-icon {
+        color: $color;
+      }
+    }
+  }
+}
+
+.panel-heading {
+  .code {
+    padding-top: 1.5rem;
+    padding-bottom: 0.5rem;
+    font-size: smaller;
+  }
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.panel-block {
+  .panel-icon {
+    height: 24px;
+    margin-right: 1.25em;
+    line-height: inherit;
+  }
+
+  a {
+    color: inherit;
+  }
+}
+
+.home table {
+  width: 100%;
+}
+
+.home table td:first-child {
+  // needed for text-overflow
+  max-width: 0;
+  padding: 0 16px 0 8px;
+  overflow: hidden;
+  color: $link;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home table td:last-child {
+  width: 3em;
+  text-align: right;
+}
+
+.home table td:first-child:hover {
+  color: $link-hover;
+}

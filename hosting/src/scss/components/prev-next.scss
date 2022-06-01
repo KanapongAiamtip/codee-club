@@ -1,0 +1,38 @@
+@import '../variables';
+
+.prev-next {
+  display: flex;
+  font-family: monospace;
+  font-size: $size-3;
+  text-align: center;
+  user-select: none;
+  -webkit-touch-callout: none; /* iOS Safari */
+
+  a,
+  span {
+    width: $size-2;
+    height: $size-2;
+    border-radius: $radius;
+    line-height: initial;
+  }
+
+  a:hover {
+    background-color: $light;
+    color: #555;
+  }
+}
+
+.prev-next.is-large {
+  font-size: $size-2;
+
+  a,
+  span {
+    width: $size-1;
+    height: $size-1;
+    border-radius: $radius-large;
+  }
+}
+
+.is-not-clickable {
+  cursor: default;
+}

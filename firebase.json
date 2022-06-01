@@ -1,0 +1,51 @@
+{
+  "firestore": {
+    "rules": "common/src/rules/firestore.rules",
+    "indexes": "common/src/rules/firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "ignore": [
+      "**/node_modules/**",
+      "**/src/**",
+      "**/.vscode/**",
+      ".eslint*",
+      ".prettier*",
+      ".runtimeconfig*",
+      "tsconfig.json"
+    ],
+    "predeploy": ["cd functions ; sh predeploy.sh"],
+    "postdeploy": ["cd functions ; sh postdeploy.sh"]
+  },
+  "hosting": {
+    "public": "hosting/dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "storage": {
+    "rules": "common/src/rules/storage.rules"
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 4001
+    },
+    "functions": {
+      "port": 5001
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "storage": {
+      "port": 9199
+    }
+  }
+}

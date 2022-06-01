@@ -1,0 +1,72 @@
+<div id="home">
+  <section v-if="user" class="section">
+    <div class="container">
+      <div v-if="user.roles && user.roles.includes('creator')" class="box mt-3">
+        <div class="columns">
+          <div class="column is-two-thirds">
+            <div class="content">
+              <h3>Welcome New "Creator"</h3>
+              <p>Your role means that you can:</p>
+              <ul>
+                <li>Create new courses and sections</li>
+                <li>Write your own activites and problems</li>
+                <li>Invite students to join your course</li>
+              </ul>
+            </div>
+          </div>
+          <div class="column is-one-third">
+            <router-link
+              class="button is-medium is-fullwidth"
+              :to="{ name: 'CourseEdit', params: { courseSlug: 'new-course' } }"
+              ><b-icon icon="plus-circle-outline"></b-icon>
+              <span>Create a new course</span>
+            </router-link>
+          </div>
+        </div>
+      </div>
+
+      <hr
+        v-if="coursesBySemester.length > 0 && user.roles && user.roles.includes('creator')"
+        class="mt-6"
+      />
+
+      <div v-if="coursesBySemester.length > 0">
+        <div
+          v-for="semester in coursesBySemester"
+          :key="semester.yearSem"
+          class="columns is-multiline is-variable is-5"
+        >
+          <div class="column is-12 has-text-right">
+            <span class="has-text-grey"
+              >Semester {{ semester.semester }} / {{ semester.year }}</span
+            >
+          </div>
+          <HomeCourse
+            v-for="course in semester.courses"
+            :key="course.id"
+            :course="course"
+            :keyedResults="keyedResults"
+          ></HomeCourse>
+        </div>
+      </div>
+      <div v-else class="hero">
+        <div class="hero-body has-text-centered">
+          <div class="pb-5">
+            <img
+              src="@/assets/no-courses.png"
+              alt="Cartoon showing a sleeping developer"
+              style="width: 172px; height: 172px"
+            />
+          </div>
+          <h1 class="title">No courses</h1>
+          <h2 class="subtitle">
+            Ask your course organizer to invite you to a Codee.Club course.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </section>
+  <Landing v-else />
+
+  <Statistics />
+</div>

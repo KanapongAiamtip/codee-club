@@ -1,0 +1,74 @@
+@import '@/scss/variables';
+
+@include mobile {
+  .navbar-menu {
+    background-color: inherit;
+  }
+
+  .navbar-dropdown {
+    padding-top: 0;
+  }
+
+  .navbar-item {
+    display: flex;
+    align-items: center;
+    color: $white;
+
+    &.has-dropdown {
+      display: block;
+
+      .navbar-dropdown {
+        display: none;
+      }
+
+      &.is-active {
+        .navbar-dropdown {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .navbar-link {
+    color: $white;
+  }
+
+  // Direct children
+  .is-primary .navbar-item,
+  .is-primary .navbar-item:focus,
+  .is-primary .navbar-item:focus-within,
+  .is-primary .navbar-item:hover,
+  .is-primary .navbar-item.is-active,
+  // Drop-down headers
+  .navbar-link,
+  .navbar-link:focus,
+  .navbar-link:focus-within,
+  .navbar-link:hover,
+  .navbar-link.is-active {
+    background-color: $primary;
+    color: $white;
+
+    &.router-link-exact-active {
+      background-color: bulmaDarken($primary, 5%);
+    }
+  }
+
+  // Drop-down children
+  .is-primary .navbar-dropdown .navbar-item,
+  .is-primary .navbar-dropdown .navbar-item:focus,
+  .is-primary .navbar-dropdown .navbar-item:focus-within,
+  .is-primary .navbar-dropdown .navbar-item:hover,
+  .is-primary .navbar-dropdown .navbar-item.is-active {
+    background-color: $white;
+    color: $grey-dark;
+  }
+}
+
+@include tablet-only {
+  .navbar-menu {
+    margin-right: 0 !important;
+    padding: inherit;
+    background-color: inherit;
+    box-shadow: none;
+  }
+}

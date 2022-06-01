@@ -1,0 +1,10 @@
+# only format css & scss
+*.*
+!*.css
+!*.scss
+
+# deps & build
+node_modules
+dist
+lib
+coverage
