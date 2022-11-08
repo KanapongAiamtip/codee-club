@@ -65,7 +65,7 @@
     "jest-cli": "^27.0.4",
     "jest-extended": "^0.11.5",
     "kill-port": "^1.6.1",
-    "lerna": "^4.0.0",
+    "lerna": "^6.0.3",
     "prettier": "^2.3.1",
     "rimraf": "^3.0.2",
     "stylelint": "^13.13.1",
